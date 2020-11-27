@@ -1,0 +1,1 @@
+for file in pdb_blindset/*;do string="$file" id="${string:0:-4}" mkdssp -i ./pdb_blindset/$file -o ./dssp_150/$id.dsssp; done
