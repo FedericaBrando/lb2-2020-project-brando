@@ -92,14 +92,16 @@ class Stats():
     @staticmethod
     def ACC(y_true, y_pred, single = False):
         sslist = [0, 1, 2]
+        ss = 'HEC'
 
-        acc = []
+        acc = {}
         for ssclass in sslist :
             yp_tmp = [ss if ss == ssclass else 9 for ss in y_pred]
             yt_tmp = [ss if ss == ssclass else 9 for ss in y_true]
             acc_tmp = accuracy_score(yp_tmp, yt_tmp)
-            acc.append(acc_tmp)
-        meanACC = mean(acc)
+            acc[ss[ssclass]] = acc_tmp
+
+        meanACC = mean(acc.values())
 
         if single :
             return acc
