@@ -4,7 +4,8 @@
     """
 import numpy as np
 from statistics import mean
-from sklearn.metrics import matthews_corrcoef, accuracy_score, classification_report
+from sklearn.metrics import matthews_corrcoef, accuracy_score
+from mlxtend.evaluate import confusion_matrix
 
 import math
 
@@ -109,9 +110,17 @@ class Stats():
         else :
             return meanACC
 
+    @staticmethod
+    def multiclasscm(y_true, y_pred):
+        cm = confusion_matrix(y_true,y_pred)
+        q3 = np.trace(cm)/np.sum(cm)
+        return cm
+
+
 if __name__ == '__main__':
 
     yt = np.array([0,0,2,1,2,0,1,0,1,1,1,1])
     yp = np.array([0,0,0,1,2,0,1,0,1,1,1,1])
 
-    Stats.clsreport(yt,yp)
+    print(Stats.Q3(yt,yp),Stats.ACC(yt,yp), accuracy_score(yt, yp))
+

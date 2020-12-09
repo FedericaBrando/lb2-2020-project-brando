@@ -137,8 +137,8 @@ class SVM_ss:
                                     n_jobs=1).fit(X,y)
             print(self.model_cv.cv_results_)
 
-            filename = os.path.join(self.o+'gridsearch.joblib')
-            # pickle.dump(model_cv, filename)
+            joblib.dump(self.model_cv.__dict__, 'gridsearch.joblib')
+
             print('best params: ', self.model_cv.best_params_)
             bp = list(self.model_cv.best_params_.values())
             self.C, self.gamma = bp
@@ -194,7 +194,10 @@ class SVM_ss:
                                                                                      self.report[key]['precision'],
                                                                                     self.report[key]['recall'],
                                                                                      self.report[key]['MCC']))
-        print(multilabel_confusion_matrix(y_test,y_pred))
+        self.mx = multilabel_confusion_matrix(y_test,y_pred)
+        self.multmx = Stats.multiclasscm(y_test, y_pred)
+        print(self.mx, self.multmx, sep='\n')
+
 
         return self
 
@@ -208,8 +211,7 @@ if __name__ == '__main__':
     train_pssm_dir = '../training_file'
     test_pssm_dir = '../blindset/test_file'
 
-
-    model = SVM_ss(17, train_pssm_dir)
+    model = SVM_ss(17, train_pssm_dir, cv_dir=dir_cv)
 
     model.predict(test_pssm_dir)
 
@@ -219,8 +221,3 @@ if __name__ == '__main__':
     joblib.dump(model.__dict__, filename)
     stop = timeit.default_timer()
     print('Time: ', stop - start)
-
-    # print(pr)
-
-    # print(pr,seq, sep='\n')
-

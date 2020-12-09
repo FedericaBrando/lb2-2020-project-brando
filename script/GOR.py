@@ -9,7 +9,7 @@ from Utility.Utilis import Pssm, Dssp, Stats
 from math import log2
 from sklearn.model_selection import PredefinedSplit
 from sklearn.metrics import classification_report, accuracy_score
-from statistics import mean
+import joblib
 
 class GOR():
 
@@ -225,32 +225,28 @@ class GOR():
     def clsreport(self):
         ss = ['E', 'C', 'H']
         y_pred = self.y_pred
-        y_true = []
+        self.y_true = []
         for key in self.dict_pred:
-            y_true += self.getytrue(self.directorytest, key[1:])
+            self.y_true += self.getytrue(self.directorytest, key[1:])
 
-
-        mcc = Stats.MCC(y_true, y_pred, True)
-        # acc = Stats.ACC(y_true, y_pred, True)
-        acc2 = accuracy_score(y_true, y_pred)
-
-        report = classification_report(y_true, y_pred,
+        mcc = Stats.MCC(self.y_true, y_pred, True)
+        self.report = classification_report(self.y_true, y_pred,
                                        target_names= ['H', 'E', 'C'],
                                        output_dict=True)
-        report['ACC'] = acc2
+
+        self.report['ACC'] = accuracy_score(self.y_true, y_pred)
+        self.report['mclasscm'] = Stats.multiclasscm(self.y_true, y_pred)
 
         for key in mcc:
-            report[key]['MCC'] = mcc[key]
+            self.report[key]['MCC'] = mcc[key]
 
-        print('ACC: {}'.format(report['ACC']))
+        print('ACC: {} \nConfMx: {}'.format(self.report['ACC'], self.report['mclasscm']))
         for key in ss :
             print('{0}\tprecision\t{1:0.5f}\trecall\t{2:0.5f}\tMCC\t{3:0.5f}'.format(key,
-                                                                                     report[key]['precision'],
-                                                                                     report[key]['recall'],
-                                                                                     report[key]['MCC']))
-
-
-        return report
+                                                                                     self.report[key]['precision'],
+                                                                                     self.report[key]['recall'],
+                                                                                     self.report[key]['MCC']))
+        return self.report
 
     def crossval(self):
         if self.cv != None:
@@ -296,8 +292,10 @@ if __name__ == '__main__':
     model = GOR(directory_train, directory_test, cv = dir, window=17)
 
     model.crossval()
-
     model.predict().clsreport()
+
+    print('Wait a sec! I\' gonna save your model in a safe place!')
+    joblib.dump(model.__dict__, 'GORmodel.joblib')
 
     stop = timeit.default_timer()
 
